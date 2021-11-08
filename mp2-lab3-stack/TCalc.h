@@ -77,8 +77,8 @@ double TCalc::calc() {
         }
         if (pstfix[i] == '+' || pstfix[i] == '-' ||
             pstfix[i] == '*' || pstfix[i] == '/' || pstfix[i] == '^') {
-            double second = st_d.pop();
-            double first = st_d.pop();
+            double second;
+            double first;
 
             if (!(st_d.empty())) {
                 second = st_d.pop();
