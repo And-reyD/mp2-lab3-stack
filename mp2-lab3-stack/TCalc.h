@@ -11,6 +11,8 @@ private:
     string pstfix;
     TStack<char> st_char;
     TStack<double> st_d;
+
+    int priority(char operation);
 public:
     TCalc();
     ~TCalc();
@@ -20,9 +22,23 @@ public:
 
     void set_expr(string _expr);
     string get_expr();
+    string get_pstfix();
     bool check_expr();
+    void convert_to_postfix();
     double calc();
 };
+
+int TCalc::priority(char operation) {
+    switch (operation) {
+    case '(': return 0;
+    case '+': return 1;
+    case '-': return 1;
+    case '*': return 2;
+    case '/': return 2;
+    case '^': return 3;
+    }
+    return 0;
+}
 
 TCalc::TCalc() {
 }
@@ -43,14 +59,14 @@ TCalc& TCalc::operator=(const TCalc& other) {
 
 void TCalc::set_expr(string _expr) {
     expr = _expr;
-
-    //Алгоритм конвертации в постфиксную запись
-
-    pstfix = expr;
 }
 
 string TCalc::get_expr() {
     return expr;
+}
+
+string TCalc::get_pstfix() {
+    return pstfix;
 }
 
 bool TCalc::check_expr() {
@@ -70,13 +86,45 @@ bool TCalc::check_expr() {
     return st_char.empty();
 }
 
+void TCalc::convert_to_postfix() {
+    string infix = "(" + expr + ")";
+    pstfix = "";
+    st_char.clear();
+    for (int i = 0; i < infix.size(); i++) {
+        if (isdigit(infix[i])) {
+            pstfix += infix[i];
+            pstfix += " ";
+        }
+        else if (infix[i] == '(') {
+            st_char.push(infix[i]);
+        }
+        else if (infix[i] == ')') {
+            while (st_char.top() != '(') {
+                pstfix += st_char.pop();
+                pstfix += " ";
+            }
+            st_char.pop();
+        }
+        else if (pstfix[i] == '+' || pstfix[i] == '-' || pstfix[i] == '*' || pstfix[i] == '/' || pstfix[i] == '^') {
+            while (priority(infix[i]) <= priority(st_char.top())) {
+                pstfix += st_char.pop();
+                pstfix += " ";
+            }
+            st_char.push(infix[i]);
+        }
+    }
+
+    if (pstfix[pstfix.size() - 1] == ' ') {
+        pstfix.pop_back();
+    }
+}
+
 double TCalc::calc() {
     for (int i = 0; i < pstfix.length(); i++) {
         if (isdigit(pstfix[i])) {
             st_d.push(stod(&pstfix[i]));
         }
-        if (pstfix[i] == '+' || pstfix[i] == '-' ||
-            pstfix[i] == '*' || pstfix[i] == '/' || pstfix[i] == '^') {
+        if (pstfix[i] == '+' || pstfix[i] == '-' || pstfix[i] == '*' || pstfix[i] == '/' || pstfix[i] == '^') {
             double second;
             double first;
 
