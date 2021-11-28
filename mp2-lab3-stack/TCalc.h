@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include <sstream>
 #include "TStack.h"
 using namespace std;
 
@@ -24,12 +25,13 @@ public:
     string get_expr();
     string get_pstfix();
     bool check_expr();
-    void convert_to_postfix();
+    void to_pstfix();
+    double calc_pstfix();
     double calc();
 };
 
-int TCalc::priority(char operation) {
-    switch (operation) {
+int TCalc::priority(char oper) {
+    switch (oper) {
     case '(': return 0;
     case '+': return 1;
     case '-': return 1;
@@ -70,7 +72,7 @@ string TCalc::get_pstfix() {
 }
 
 bool TCalc::check_expr() {
-    for (int i = 0; i < expr.length(); i++) {
+    for (int i = 0; i < expr.size(); i++) {
         if (expr[i] == '(') {
             st_char.push(expr[i]);
         }
@@ -86,14 +88,20 @@ bool TCalc::check_expr() {
     return st_char.empty();
 }
 
-void TCalc::convert_to_postfix() {
+void TCalc::to_pstfix() {
     string infix = "(" + expr + ")";
     pstfix = "";
     st_char.clear();
     for (int i = 0; i < infix.size(); i++) {
         if (isdigit(infix[i])) {
-            pstfix += infix[i];
+            size_t idx;
+            double tmp = stod(&infix[i], &idx);
+            ostringstream ss;
+            ss << tmp;
+
+            pstfix += ss.str();
             pstfix += " ";
+            i += idx - 1;
         }
         else if (infix[i] == '(') {
             st_char.push(infix[i]);
@@ -105,7 +113,7 @@ void TCalc::convert_to_postfix() {
             }
             st_char.pop();
         }
-        else if (pstfix[i] == '+' || pstfix[i] == '-' || pstfix[i] == '*' || pstfix[i] == '/' || pstfix[i] == '^') {
+        else if (infix[i] == '+' || infix[i] == '-' || infix[i] == '*' || infix[i] == '/' || infix[i] == '^') {
             while (priority(infix[i]) <= priority(st_char.top())) {
                 pstfix += st_char.pop();
                 pstfix += " ";
@@ -114,28 +122,32 @@ void TCalc::convert_to_postfix() {
         }
     }
 
-    if (pstfix[pstfix.size() - 1] == ' ') {
+    if (!pstfix.empty()) {
         pstfix.pop_back();
     }
 }
 
-double TCalc::calc() {
-    for (int i = 0; i < pstfix.length(); i++) {
+double TCalc::calc_pstfix() {
+    if (pstfix.empty()) {
+        throw "Empty";
+    }
+    for (int i = 0; i < pstfix.size(); i++) {
         if (isdigit(pstfix[i])) {
-            st_d.push(stod(&pstfix[i]));
+            size_t idx;
+            double tmp = stod(&pstfix[i], &idx);
+            st_d.push(tmp);
+            i += idx - 1;
         }
         if (pstfix[i] == '+' || pstfix[i] == '-' || pstfix[i] == '*' || pstfix[i] == '/' || pstfix[i] == '^') {
-            double second;
-            double first;
-
-            if (!(st_d.empty())) {
+            double first, second;
+            if (!st_d.empty()) {
                 second = st_d.pop();
             }
             else {
                 throw "Exception: Too much operation in the postfix string";
             }
 
-            if (!(st_d.empty())) {
+            if (!st_d.empty()) {
                 first = st_d.pop();
             }
             else {
@@ -161,9 +173,114 @@ double TCalc::calc() {
             }
         }
     }
-    if (!(st_d.empty())) {
+
+    if (!st_d.empty()) {
         double result = st_d.pop();
-        if (!(st_d.empty())) {
+        if (!st_d.empty()) {
+            throw "Exception: Too many operands in the string";
+        }
+        return result;
+    }
+    else {
+        throw "Exception: No operands in the string";
+    }
+}
+
+double TCalc::calc() {
+    string infix = "(" + expr + ")";
+    st_d.clear();
+    st_char.clear();
+    for (int i = 0; i < infix.size(); i++) {
+        if (infix[i] == '(') {
+            st_char.push(infix[i]);
+        }
+        else if (isdigit(infix[i])) {
+            size_t idx;
+            double tmp = stod(&infix[i], &idx);
+            st_d.push(tmp);
+            i += idx - 1;
+        }
+        else if (infix[i] == '+' || infix[i] == '-' || infix[i] == '*' || infix[i] == '/' || infix[i] == '^') {
+            while (priority(infix[i]) <= priority(st_char.top())) {
+                double first, second;
+                if (!st_d.empty()) {
+                    second = st_d.pop();
+                }
+                else {
+                    throw "Exception: Too much operation";
+                }
+
+                if (!st_d.empty()) {
+                    first = st_d.pop();
+                }
+                else {
+                    throw "Exception: Too much operation";
+                }
+                char oper = st_char.pop();
+
+                switch (oper) {
+                case '+':
+                    st_d.push(first + second);
+                    break;
+                case '-':
+                    st_d.push(first - second);
+                    break;
+                case '*':
+                    st_d.push(first * second);
+                    break;
+                case '/':
+                    st_d.push(first / second);
+                    break;
+                case '^':
+                    st_d.push(pow(first, second));
+                    break;
+                }
+            }
+            st_char.push(infix[i]);
+        }
+        else if (infix[i] == ')') {
+            while (st_char.top() != '(') {
+                double first, second;
+                if (!st_d.empty()) {
+                    second = st_d.pop();
+                }
+                else {
+                    throw "Exception: Too much operation";
+                }
+
+                if (!st_d.empty()) {
+                    first = st_d.pop();
+                }
+                else {
+                    throw "Exception: Too much operation";
+                }
+                char oper = st_char.pop();
+
+                switch (oper) {
+                case '+':
+                    st_d.push(first + second);
+                    break;
+                case '-':
+                    st_d.push(first - second);
+                    break;
+                case '*':
+                    st_d.push(first * second);
+                    break;
+                case '/':
+                    st_d.push(first / second);
+                    break;
+                case '^':
+                    st_d.push(pow(first, second));
+                    break;
+                }
+            }
+            st_char.pop();
+        }
+    }
+
+    if (!st_d.empty()) {
+        double result = st_d.pop();
+        if (!st_d.empty()) {
             throw "Exception: Too many operands in the string";
         }
         return result;

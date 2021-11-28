@@ -14,15 +14,17 @@ public:
     TStack(const TStack& st);
 
     TStack& operator=(const TStack& st);
-    bool operator==(const TStack& st);
 
-    bool empty();
-    bool full();
+    bool operator==(const TStack& st) const;
+    bool operator!=(const TStack& st) const;
+
+    bool empty() const;
+    bool full() const;
     void clear();
 
     void push(T elem);
     T pop();
-    T top();
+    T top() const;
 
     friend ostream& operator<<(ostream& out, const TStack& st) {
         for (int i = 0; i <= st.pos; i++) {
@@ -75,13 +77,13 @@ TStack<T>& TStack<T>::operator=(const TStack<T>& st) {
 }
 
 template <class T>
-bool TStack<T>::operator==(const TStack& st) {
+bool TStack<T>::operator==(const TStack& st) const {
     if (size != st.size) {
         return false;
     }
 
     for (int i = 0; i < size; i++) {
-        if (arr[i] != st[i]) {
+        if (arr[i] != st.arr[i]) {
             return false;
         }
     }
@@ -89,13 +91,18 @@ bool TStack<T>::operator==(const TStack& st) {
     return true;
 }
 
+template<class T>
+bool TStack<T>::operator!=(const TStack& st) const {
+    return !operator==(st);
+}
+
 template <class T>
-bool TStack<T>::empty() {
+bool TStack<T>::empty() const {
     return pos == -1;
 }
 
 template <class T>
-bool TStack<T>::full() {
+bool TStack<T>::full() const {
     return pos == (size - 1);
 }
 
@@ -127,7 +134,7 @@ T TStack<T>::pop() {
 }
 
 template <class T>
-T TStack<T>::top() {
+T TStack<T>::top() const {
     if (empty()) {
         throw "Can't access top element: stack is empty";
     }
