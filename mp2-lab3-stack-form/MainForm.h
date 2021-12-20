@@ -1,5 +1,5 @@
 #pragma once
-#include "../mp2-lab3-stack/TCalc.h"
+#include "../stack-with-list/TLCalc.h"
 #include <msclr\marshal_cppstd.h>
 
 namespace mp2lab3stackform {
@@ -139,7 +139,7 @@ namespace mp2lab3stackform {
 			return;
 		}
 
-		TCalc calc;
+		TLCalc calc;
 		calc.set_expr(infix);
 		if (!calc.check_expr()) {
 			label2->Text = "Invalid expression!";
