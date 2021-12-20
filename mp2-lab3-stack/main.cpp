@@ -10,7 +10,7 @@ int main() {
     setlocale(LC_ALL, "russian");
     setlocale(LC_NUMERIC, "eng");
 
-    TCalc calculator;
+    TLCalc calculator;
     string line;
 
     while (true) {
