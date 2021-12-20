@@ -6,7 +6,7 @@
 #include "TStack.h"
 using namespace std;
 
-class TLCalc {
+class TCalc {
 private:
     string expr;
     string pstfix;
@@ -15,11 +15,11 @@ private:
 
     int priority(char operation);
 public:
-    TLCalc();
-    ~TLCalc();
-    TLCalc(const TLCalc& other);
+    TCalc();
+    ~TCalc();
+    TCalc(const TCalc& other);
 
-    TLCalc& operator=(const TLCalc& other);
+    TCalc& operator=(const TCalc& other);
 
     void set_expr(string _expr);
     string get_expr();
@@ -30,7 +30,7 @@ public:
     double calc();
 };
 
-int TLCalc::priority(char oper) {
+int TCalc::priority(char oper) {
     switch (oper) {
     case '(': return 0;
     case '+': return 1;
@@ -42,36 +42,36 @@ int TLCalc::priority(char oper) {
     return 0;
 }
 
-TLCalc::TLCalc() {
+TCalc::TCalc() {
 }
 
-TLCalc::~TLCalc() {
+TCalc::~TCalc() {
 }
 
-TLCalc::TLCalc(const TLCalc& other) {
+TCalc::TCalc(const TCalc& other) {
     expr = other.expr;
     pstfix = other.pstfix;
 }
 
-TLCalc& TLCalc::operator=(const TLCalc& other) {
+TCalc& TCalc::operator=(const TCalc& other) {
     expr = other.expr;
     pstfix = other.pstfix;
     return *this;
 }
 
-void TLCalc::set_expr(string _expr) {
+void TCalc::set_expr(string _expr) {
     expr = _expr;
 }
 
-string TLCalc::get_expr() {
+string TCalc::get_expr() {
     return expr;
 }
 
-string TLCalc::get_pstfix() {
+string TCalc::get_pstfix() {
     return pstfix;
 }
 
-bool TLCalc::check_expr() {
+bool TCalc::check_expr() {
     for (int i = 0; i < expr.size(); i++) {
         if (expr[i] == '(') {
             st_char.push(expr[i]);
@@ -88,7 +88,7 @@ bool TLCalc::check_expr() {
     return st_char.empty();
 }
 
-void TLCalc::to_pstfix() {
+void TCalc::to_pstfix() {
     string infix = "(" + expr + ")";
     pstfix = "";
     st_char.clear();
@@ -127,7 +127,7 @@ void TLCalc::to_pstfix() {
     }
 }
 
-double TLCalc::calc_pstfix() {
+double TCalc::calc_pstfix() {
     if (pstfix.empty()) {
         throw "Empty";
     }
@@ -186,7 +186,7 @@ double TLCalc::calc_pstfix() {
     }
 }
 
-double TLCalc::calc() {
+double TCalc::calc() {
     string infix = "(" + expr + ")";
     st_d.clear();
     st_char.clear();
